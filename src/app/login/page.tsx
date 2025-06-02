@@ -7,10 +7,47 @@ import Footer from "@/components/Footer"
 export default function LoginPage() {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
+  const [errorMessage, setErrorMessage] = useState("")
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    console.log("Login:", { email, password })
+
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/login`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          username: email, // clave esperada por el backend
+          password: password,
+        }),
+      })
+
+      if (!response.ok) {
+        const errorText = await response.text()
+        setErrorMessage("Error: " + errorText)
+        return
+      }
+
+      const data = await response.json()
+      const token = data.token
+      const username = data.username || email // usa el email si el backend no envía username
+
+      // Guardar en localStorage
+      localStorage.setItem("token", token)
+      localStorage.setItem("username", username)
+
+      // Notificar al resto de la app (por ejemplo TopHeader)
+      window.dispatchEvent(new Event("storage"))
+
+      // Limpiar mensaje de error y redirigir
+      setErrorMessage("")
+      window.location.href = "/"
+    } catch (error) {
+      console.error("Error al iniciar sesión:", error)
+      setErrorMessage("Hubo un error al iniciar sesión. Inténtalo de nuevo.")
+    }
   }
 
   return (
@@ -25,6 +62,12 @@ export default function LoginPage() {
           </h2>
 
           <form onSubmit={handleSubmit} className="space-y-4">
+            {errorMessage && (
+              <div className="text-red-600 font-medium text-sm text-center">
+                {errorMessage}
+              </div>
+            )}
+
             <div className="flex flex-col">
               <label htmlFor="email" className="mb-2 text-gray-700 font-medium">
                 Correo electrónico
@@ -72,7 +115,10 @@ export default function LoginPage() {
 
           <p className="mt-6 text-center text-sm text-gray-600">
             ¿No tienes cuenta?{" "}
-            <Link href="/register" className="text-[#8dd3ba] hover:text-[#1a1a1a] font-medium">
+            <Link
+              href="/register"
+              className="text-[#8dd3ba] hover:text-[#1a1a1a] font-medium"
+            >
               Regístrate
             </Link>
           </p>
