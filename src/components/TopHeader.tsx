@@ -2,63 +2,88 @@
 
 import Link from "next/link"
 import { Briefcase } from "lucide-react"
+import { useEffect, useState } from "react"
 
 export default function TopHeader() {
+  const [loggedIn, setLoggedIn] = useState(false)
+  const [username, setUsername] = useState("")
+  const [isClient, setIsClient] = useState(false)
+
+  useEffect(() => {
+    setIsClient(true)
+
+    const token = localStorage.getItem("token")
+    const user = localStorage.getItem("username")
+    setLoggedIn(!!token)
+    setUsername(user || "")
+
+    const handleStorageChange = () => {
+      const newToken = localStorage.getItem("token")
+      const newUser = localStorage.getItem("username")
+      setLoggedIn(!!newToken)
+      setUsername(newUser || "")
+    }
+
+    window.addEventListener("storage", handleStorageChange)
+    return () => window.removeEventListener("storage", handleStorageChange)
+  }, [])
+
+  const handleLogout = () => {
+    localStorage.removeItem("token")
+    localStorage.removeItem("username")
+    setLoggedIn(false)
+    setUsername("")
+    window.location.href = "/login"
+  }
+
+  if (!isClient) return null // ✅ Evita error de hidratación
+
   return (
     <header className="relative z-50">
-      {/* Mensaje superior */}
       <div className="bg-green-950 text-white text-sm text-center py-2 px-4">
-        Esta web aún está en desarrollo. Algunas funciones pueden no estar disponibles. {/* Revisa el avance en{" "}
-        <a
-          href="https://github.com/tu-repo"
-          target="_blank"
-          className="text-red-400 underline hover:text-red-300"
-        >
-          este repositorio
-        </a>. */}
+        Esta web aún está en desarrollo. Algunas funciones pueden no estar disponibles.
       </div>
 
-      {/* Barra principal con efecto blur */}
-      <div className="backdrop-blur-md bg-white/70 shadow-sm">
+      <div className="bg-white/70 shadow-sm backdrop-blur-md">
         <div className="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center relative">
-          {/* IZQUIERDA: Generar equipaje */}
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center space-x-4">
             <Link
               href="/equipaje"
-              className="flex items-center space-x-2 text-gray-800 font-medium hover:text-[#76bfa9] transition-colors"
+              className="flex items-center space-x-2 text-gray-800 font-medium hover:text-[#76bfa9] transition-colors duration-200"
             >
               <Briefcase size={18} />
               <span>Generar equipaje</span>
             </Link>
           </div>
 
-          {/* CENTRO: Logo */}
           <div className="absolute left-1/2 transform -translate-x-1/2">
             <Link href="/" className="text-3xl font-bold" style={{ color: "#8dd3ba" }}>
               equipaje
             </Link>
           </div>
 
-          {/* DERECHA: Historial, Login, Signup */}
           <div className="flex items-center space-x-4">
-            <Link
-              href="/historial"
-              className="text-gray-800 font-medium hover:text-[#76bfa9] transition-colors"
-            >
-              Ver historial
-            </Link>
-            <Link
-              href="/login"
-              className="text-gray-800 font-medium hover:text-[#76bfa9] transition-colors"
-            >
-              Login
-            </Link>
-            <Link
-              href="/register"
-              className="bg-white text-gray-800 border px-3 py-1.5 rounded-lg font-medium hover:text-[#76bfa9] hover:border-[#76bfa9] transition-colors"
-            >
-              Signup
-            </Link>
+            {!loggedIn ? (
+              <>
+                <Link href="/login" className="text-gray-800 hover:text-[#76bfa9] transition-colors duration-200">
+                  Login
+                </Link>
+                <Link href="/register" className="text-gray-800 hover:text-[#76bfa9] transition-colors duration-200">
+                  Signup
+                </Link>
+              </>
+            ) : (
+              <>
+                <Link href="/historial" className="text-gray-800 hover:text-[#76bfa9] transition-colors duration-200">
+                  Historial
+                </Link>
+                <button onClick={handleLogout} className="text-red-600 font-semibold hover:text-red-800 transition-colors duration-200">
+                  Logout
+                </button>
+                                <span className="text-gray-700 font-medium">👋 Hola, {username}</span>
+
+              </>
+            )}
           </div>
         </div>
       </div>

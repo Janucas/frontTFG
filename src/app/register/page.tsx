@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation"
 import Footer from "@/components/Footer"
 
 export default function RegisterPage() {
-  const [nombre, setNombre] = useState("")
+  const [username, setNombre] = useState("")
   const [dni, setDni] = useState("")
   const [fechaNacimiento, setFechaNacimiento] = useState("")
   const [telefono, setTelefono] = useState("")
@@ -14,19 +14,37 @@ export default function RegisterPage() {
   const [password, setPassword] = useState("")
   const router = useRouter()
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    console.log("Registro:", {
-      nombre,
-      dni,
-      fechaNacimiento,
-      telefono,
-      email,
-      password,
-    })
+  const handleSubmit = async (e: React.FormEvent) => {
+  e.preventDefault();
 
-    router.push("/login")
+  try {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/register`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        username: email,
+        password: password,
+        nombre: username,
+      }),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      alert("Error al registrar: " + errorText);
+      return;
+    }
+
+    alert("¡Registro exitoso!");
+    router.push("/login");
+
+  } catch (error) {
+    console.error("Error en el registro:", error);
+    alert("Hubo un error en el registro");
   }
+};
+
 
   return (
     <>
@@ -47,8 +65,8 @@ export default function RegisterPage() {
               <input
                 id="nombre"
                 type="text"
-                value={nombre}
-                placeholder="Tu nombre"
+                value={username}
+                placeholder="Nombre de usuario"
                 onChange={(e) => setNombre(e.target.value)}
                 className="p-3 bg-white text-gray-700 placeholder-gray-500 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
                 required
