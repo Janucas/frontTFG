@@ -49,7 +49,10 @@ export default function RegisterPage() {
       console.error("Error en el registro:", error)
       setErrorMessage("❌ Hubo un error en el registro")
     }
+
   }
+};
+
 
   return (
     <>
