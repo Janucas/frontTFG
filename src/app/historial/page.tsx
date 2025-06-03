@@ -151,6 +151,7 @@ export default function HistorialPage() {
             <p className="text-gray-600 mb-2">
               📅 {new Date(equipaje.fechaSalida).toLocaleDateString()} – {new Date(equipaje.fechaRegreso).toLocaleDateString()}
             </p>
+
             <div className="flex flex-wrap gap-3 mt-2">
               <button
                 onClick={() => router.push(`/equipaje/${equipaje.id}`)}

@@ -12,36 +12,44 @@ export default function RegisterPage() {
   const [telefono, setTelefono] = useState("")
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
+  const [errorMessage, setErrorMessage] = useState("")
+  const [successMessage, setSuccessMessage] = useState("")
+
   const router = useRouter()
 
   const handleSubmit = async (e: React.FormEvent) => {
-  e.preventDefault();
+    e.preventDefault()
+    setErrorMessage("")
+    setSuccessMessage("")
 
-  try {
-    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/register`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        username: email,
-        password: password,
-        nombre: username,
-      }),
-    });
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/register`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          username: email,
+          password: password,
+          nombre: username,
+        }),
+      })
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      alert("Error al registrar: " + errorText);
-      return;
+      if (!response.ok) {
+        const errorText = await response.text()
+        setErrorMessage("❌ Error al registrar: " + errorText)
+        return
+      }
+
+      setSuccessMessage("✅ ¡Registro exitoso! Redirigiendo al login...")
+      setTimeout(() => {
+        router.push("/login")
+      }, 1500)
+    } catch (error) {
+      console.error("Error en el registro:", error)
+      setErrorMessage("❌ Hubo un error en el registro")
     }
 
-    alert("¡Registro exitoso!");
-    router.push("/login");
-
-  } catch (error) {
-    console.error("Error en el registro:", error);
-    alert("Hubo un error en el registro");
   }
 };
 
@@ -57,7 +65,20 @@ export default function RegisterPage() {
             Crear cuenta
           </h2>
 
+          {errorMessage && (
+            <div className="mb-4 text-center text-red-600 font-medium">
+              {errorMessage}
+            </div>
+          )}
+
+          {successMessage && (
+            <div className="mb-4 text-center text-green-600 font-medium">
+              {successMessage}
+            </div>
+          )}
+
           <form onSubmit={handleSubmit} className="space-y-4">
+            {/* Nombre */}
             <div className="flex flex-col">
               <label htmlFor="nombre" className="mb-2 text-[#8dd3ba] font-medium">
                 Nombre completo
@@ -73,6 +94,7 @@ export default function RegisterPage() {
               />
             </div>
 
+            {/* DNI */}
             <div className="flex flex-col">
               <label htmlFor="dni" className="mb-2 text-[#8dd3ba] font-medium">
                 DNI
@@ -88,6 +110,7 @@ export default function RegisterPage() {
               />
             </div>
 
+            {/* Fecha nacimiento */}
             <div className="flex flex-col">
               <label htmlFor="fechaNacimiento" className="mb-2 text-[#8dd3ba] font-medium">
                 Fecha de nacimiento
@@ -102,6 +125,7 @@ export default function RegisterPage() {
               />
             </div>
 
+            {/* Teléfono */}
             <div className="flex flex-col">
               <label htmlFor="telefono" className="mb-2 text-[#8dd3ba] font-medium">
                 Teléfono
@@ -117,6 +141,7 @@ export default function RegisterPage() {
               />
             </div>
 
+            {/* Email */}
             <div className="flex flex-col">
               <label htmlFor="email" className="mb-2 text-[#8dd3ba] font-medium">
                 Correo electrónico
@@ -132,6 +157,7 @@ export default function RegisterPage() {
               />
             </div>
 
+            {/* Contraseña */}
             <div className="flex flex-col">
               <label htmlFor="password" className="mb-2 text-[#8dd3ba] font-medium">
                 Contraseña
@@ -147,16 +173,13 @@ export default function RegisterPage() {
               />
             </div>
 
+            {/* Botón de enviar */}
             <button
               type="submit"
               className="w-full p-3 mt-4 rounded-lg text-white font-medium transition-colors duration-300"
               style={{ backgroundColor: "#8dd3ba" }}
-              onMouseOver={(e) =>
-                (e.currentTarget.style.backgroundColor = "#1a1a1a")
-              }
-              onMouseOut={(e) =>
-                (e.currentTarget.style.backgroundColor = "#8dd3ba")
-              }
+              onMouseOver={(e) => (e.currentTarget.style.backgroundColor = "#1a1a1a")}
+              onMouseOut={(e) => (e.currentTarget.style.backgroundColor = "#8dd3ba")}
             >
               Registrarse
             </button>

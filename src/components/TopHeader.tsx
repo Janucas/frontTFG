@@ -1,6 +1,7 @@
 "use client"
 
 import Link from "next/link"
+import Image from "next/image"
 import { Briefcase } from "lucide-react"
 import { useEffect, useState } from "react"
 
@@ -36,7 +37,8 @@ export default function TopHeader() {
     window.location.href = "/login"
   }
 
-  if (!isClient) return null // ✅ Evita error de hidratación
+  if (!isClient) return null
+
 
   return (
     <header className="relative z-50">
@@ -45,8 +47,25 @@ export default function TopHeader() {
       </div>
 
       <div className="bg-white/70 shadow-sm backdrop-blur-md">
-        <div className="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center relative">
-          <div className="flex items-center space-x-4">
+        <div className="max-w-7xl mx-auto px-4 py-4 flex flex-col md:flex-row md:justify-between md:items-center relative gap-y-4">
+          
+          {/* Logo para móviles */}
+          <div className="flex justify-center md:hidden">
+            <Link href="/">
+              <Image
+                src="/images/travelguru.png"
+                alt="Logo"
+                width={150}
+                height={50}
+                className="object-contain h-12"
+                priority
+              />
+            </Link>
+          </div>
+
+          {/* Sección izquierda */}
+          <div className="flex items-center space-x-4 justify-center md:justify-start">
+
             <Link
               href="/equipaje"
               className="flex items-center space-x-2 text-gray-800 font-medium hover:text-[#76bfa9] transition-colors duration-200"
@@ -56,13 +75,23 @@ export default function TopHeader() {
             </Link>
           </div>
 
-          <div className="absolute left-1/2 transform -translate-x-1/2">
-            <Link href="/" className="text-3xl font-bold" style={{ color: "#8dd3ba" }}>
-              equipaje
+          {/* Logo centrado absoluto en escritorio */}
+          <div className="hidden md:block absolute left-1/2 transform -translate-x-1/2">
+            <Link href="/">
+              <Image
+                src="/images/travelguru.png"
+                alt="Logo"
+                width={150}
+                height={50}
+                className="object-contain h-12"
+                priority
+              />
             </Link>
           </div>
 
-          <div className="flex items-center space-x-4">
+          {/* Sección derecha */}
+          <div className="flex items-center space-x-4 justify-center md:justify-end">
+
             {!loggedIn ? (
               <>
                 <Link href="/login" className="text-gray-800 hover:text-[#76bfa9] transition-colors duration-200">
@@ -77,10 +106,13 @@ export default function TopHeader() {
                 <Link href="/historial" className="text-gray-800 hover:text-[#76bfa9] transition-colors duration-200">
                   Historial
                 </Link>
-                <button onClick={handleLogout} className="text-red-600 font-semibold hover:text-red-800 transition-colors duration-200">
+                <button
+                  onClick={handleLogout}
+                  className="text-red-600 font-semibold hover:text-red-800 transition-colors duration-200"
+                >
                   Logout
                 </button>
-                                <span className="text-gray-700 font-medium">👋 Hola, {username}</span>
+                <span className="text-gray-700 font-medium">👋 Hola, {username}</span>
 
               </>
             )}
