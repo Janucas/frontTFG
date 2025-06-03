@@ -1,15 +1,54 @@
 "use client"
 
 import React, { useState } from "react"
+import { useRouter } from "next/navigation"
 
 export default function EquipajePage() {
   const [destino, setDestino] = useState("")
   const [inicio, setInicio] = useState("")
   const [fin, setFin] = useState("")
+  const [error, setError] = useState("")
+  const [loading, setLoading] = useState(false)
+  const router = useRouter()
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    console.log({ destino, inicio, fin })
+    setError("")
+    setLoading(true)
+
+    const token = localStorage.getItem("token")
+    if (!token) {
+      setError("❌ Debes iniciar sesión para generar equipaje")
+      setLoading(false)
+      return
+    }
+
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/equipajes`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          destino,
+          fechaInicio: inicio,
+          fechaFin: fin,
+        }),
+      })
+
+      if (!response.ok) {
+        throw new Error("No se pudo generar el equipaje")
+      }
+
+      // Redirige al historial
+      router.push("/historial")
+    } catch (err) {
+      console.error(err)
+      setError("❌ Error al generar el equipaje")
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
@@ -18,6 +57,9 @@ export default function EquipajePage() {
         <h2 className="text-3xl font-semibold text-center text-gray-800 mb-6">
           Genera tu equipaje personalizado
         </h2>
+
+        {error && <p className="text-red-600 text-center mb-4">{error}</p>}
+
         <form
           onSubmit={handleSubmit}
           className="grid grid-cols-1 md:grid-cols-3 gap-6 items-end"
@@ -73,7 +115,8 @@ export default function EquipajePage() {
             <label className="mb-2 text-transparent select-none">Enviar</label>
             <button
               type="submit"
-              className="w-full p-3 rounded-lg text-white font-medium transition-colors duration-300"
+              disabled={loading}
+              className="w-full p-3 rounded-lg text-white font-medium transition-colors duration-300 disabled:opacity-50"
               style={{ backgroundColor: "#8dd3ba" }}
               onMouseOver={(e) =>
                 (e.currentTarget.style.backgroundColor = "#76bfa9")
@@ -82,7 +125,7 @@ export default function EquipajePage() {
                 (e.currentTarget.style.backgroundColor = "#8dd3ba")
               }
             >
-              Generar equipaje
+              {loading ? "Generando..." : "Generar equipaje"}
             </button>
           </div>
         </form>
