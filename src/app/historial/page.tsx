@@ -17,6 +17,7 @@ export default function HistorialPage() {
   const [paginaActual, setPaginaActual] = useState(1)
   const [error, setError] = useState("")
   const [success, setSuccess] = useState("")
+
   const [loading, setLoading] = useState(true)
   const router = useRouter()
 
@@ -30,6 +31,7 @@ export default function HistorialPage() {
 
     const fetchHistorial = async () => {
       try {
+
         const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/equipajes/historial`, {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -143,12 +145,12 @@ export default function HistorialPage() {
 
       <ul className="space-y-6 mb-10">
         {equipajesPagina.map((equipaje) => (
+
           <li key={equipaje.id} className="bg-white p-6 shadow-md rounded-lg border">
             <h2 className="text-xl font-semibold text-gray-800 mb-2">{equipaje.destino}</h2>
             <p className="text-gray-600 mb-2">
               📅 {new Date(equipaje.fechaSalida).toLocaleDateString()} – {new Date(equipaje.fechaRegreso).toLocaleDateString()}
             </p>
-
             <div className="flex flex-wrap gap-3 mt-2">
               <button
                 onClick={() => router.push(`/equipaje/${equipaje.id}`)}
@@ -217,6 +219,7 @@ export default function HistorialPage() {
           Siguiente →
         </button>
       </div>
+
     </div>
   )
 }

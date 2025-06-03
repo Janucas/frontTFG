@@ -46,7 +46,6 @@ export default function InformeEquipajePage() {
 
     fetchInforme()
   }, [id])
-
   if (loading) return <p className="text-center mt-10 text-gray-600">Cargando informe...</p>
   if (error) return <p className="text-center mt-10 text-red-600">{error}</p>
 
@@ -70,6 +69,7 @@ export default function InformeEquipajePage() {
           ← Volver al historial
         </button>
       </div>
+
     </div>
   )
 }
