@@ -1,91 +1,75 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { useParams } from "next/navigation"
+import { useParams, useRouter } from "next/navigation"
 
-interface DiaEquipaje {
-  fecha: string
-  clima?: {
-    descripcion: string
-    temperaturaMin: number
-    temperaturaMax: number
-  }
-  items: {
-    nombre: string
-  }[]
+interface InformeDia {
+  texto: string
 }
 
 export default function InformeEquipajePage() {
   const { id } = useParams()
-  const [informe, setInforme] = useState<DiaEquipaje[]>([])
+  const [informe, setInforme] = useState<InformeDia[]>([])
+  const [loading, setLoading] = useState(true)
   const [error, setError] = useState("")
-  const [isClient, setIsClient] = useState(false)
+  const router = useRouter()
 
   useEffect(() => {
-    setIsClient(true)
-
     const token = localStorage.getItem("token")
     if (!token) {
-      setError("❌ Debes iniciar sesión para ver el informe")
+      setError("❌ Debes iniciar sesión para ver este equipaje")
+      setLoading(false)
       return
     }
 
     const fetchInforme = async () => {
       try {
-        const response = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL}/api/equipajes/${id}/informe`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        )
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/equipajes/${id}/informe`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        })
 
         if (!response.ok) {
-          setError("❌ Error al obtener el informe del equipaje")
-          return
+          setError("❌ No se pudo cargar el informe del equipaje")
+        } else {
+          const data = await response.json()
+          setInforme(data)
         }
-
-        const data = await response.json()
-        setInforme(data)
       } catch (err) {
         console.error(err)
         setError("❌ Error de conexión con el servidor")
+      } finally {
+        setLoading(false)
       }
     }
 
     fetchInforme()
   }, [id])
-
-  if (!isClient) return null
-  if (error) return <p className="text-center text-red-600 font-medium mt-10">{error}</p>
-  if (!informe.length) return <p className="text-center text-gray-500 mt-10">Cargando informe...</p>
+  if (loading) return <p className="text-center mt-10 text-gray-600">Cargando informe...</p>
+  if (error) return <p className="text-center mt-10 text-red-600">{error}</p>
 
   return (
-    <div className="max-w-4xl mx-auto p-6">
-      <h1 className="text-3xl font-bold text-[#8dd3ba] mb-6 text-center">
-        Informe de equipaje #{id}
-      </h1>
+    <div className="max-w-3xl mx-auto px-6 py-10">
+      <h1 className="text-3xl font-bold text-[#8dd3ba] text-center mb-6">📝 Informe de equipaje</h1>
 
-      {informe.map((dia, index) => (
-        <div key={index} className="mb-8 border-b pb-4">
-          <h2 className="text-xl font-semibold text-gray-700 mb-2">
-            📅 {new Date(dia.fecha).toLocaleDateString()}
-          </h2>
-          {dia.clima ? (
-            <p className="text-gray-600 mb-2">
-              🌤️ {dia.clima.descripcion} | 🌡️ {dia.clima.temperaturaMin}°C - {dia.clima.temperaturaMax}°C
-            </p>
-          ) : (
-            <p className="text-gray-600 mb-2 italic">🌤️ Clima no disponible</p>
-          )}
-          <ul className="list-disc list-inside text-gray-800">
-            {dia.items.map((item, i) => (
-              <li key={i}>🧳 {item.nombre}</li>
-            ))}
-          </ul>
-        </div>
-      ))}
+      <div className="space-y-6">
+        {informe.map((dia, index) => (
+          <div key={index} className="bg-white shadow p-4 rounded border">
+            <pre className="whitespace-pre-wrap font-sans text-gray-800">{dia.texto}</pre>
+          </div>
+        ))}
+      </div>
+
+      <div className="text-center mt-10">
+        <button
+          onClick={() => router.push("/historial")}
+          className="mt-4 px-4 py-2 bg-[#8dd3ba] text-white rounded hover:bg-[#76bfa9] transition-colors"
+        >
+          ← Volver al historial
+        </button>
+      </div>
+
     </div>
   )
 }
