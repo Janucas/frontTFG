@@ -14,39 +14,40 @@ export default function RegisterPage() {
   const [password, setPassword] = useState("")
   const [showPassword, setShowPassword] = useState(false)
   const [errorMessage, setErrorMessage] = useState("")
-  const [successMessage, setSuccessMessage] = useState("")
 
   const router = useRouter()
 
   const validarCampos = () => {
-  const soloSimbolos = /^[^a-zA-Z0-9]*$/ // solo símbolos como *****
+    const soloSimbolos = /^[^a-zA-Z0-9]*$/
 
-  if (username.trim().length < 3 || soloSimbolos.test(username))
-    return "El nombre debe tener al menos 3 letras válidas."
+    if (username.trim().length < 3 || soloSimbolos.test(username))
+      return "El nombre debe tener al menos 3 letras válidas."
 
-  if (!/^\d{8}[A-Z]$/.test(dni))
-    return "El DNI debe tener 8 números y una letra mayúscula (ej: 12345678A)."
+    if (!/^\d{8}[A-Z]$/.test(dni))
+      return "El DNI debe tener 8 números y una letra mayúscula (ej: 12345678A)."
 
-  if (!fechaNacimiento)
-    return "La fecha de nacimiento es obligatoria."
+    if (!fechaNacimiento)
+      return "La fecha de nacimiento es obligatoria."
 
-  if (!/^\+?\d{9,15}$/.test(telefono))
-    return "Número de teléfono inválido."
+    if (!/^\+?\d{9,15}$/.test(telefono))
+      return "Número de teléfono inválido."
 
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || soloSimbolos.test(email))
-  return "Correo electrónico inválido o con caracteres inválidos."
+    if (
+      !/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(email) ||
+      soloSimbolos.test(email)
+    ) {
+      return "Correo electrónico inválido. Asegúrate de incluir un dominio como '.com', '.es', etc."
+    }
 
-  if (password.length < 6 || soloSimbolos.test(password))
-    return "La contraseña debe tener al menos 6 caracteres y contener letras o números."
+    if (password.length < 6 || soloSimbolos.test(password))
+      return "La contraseña debe tener al menos 6 caracteres y contener letras o números."
 
-  return ""
-}
-
+    return ""
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setErrorMessage("")
-    setSuccessMessage("")
 
     const validacion = validarCampos()
     if (validacion) {
@@ -73,8 +74,7 @@ export default function RegisterPage() {
         return
       }
 
-      setSuccessMessage("✅ ¡Registro exitoso! Redirigiendo al login...")
-      setTimeout(() => router.push("/login"), 1500)
+      router.push("/login")
     } catch (error) {
       console.error("Error en el registro:", error)
       setErrorMessage("❌ Hubo un error en el registro")
@@ -95,11 +95,6 @@ export default function RegisterPage() {
           {errorMessage && (
             <div className="mb-4 text-center text-red-600 font-medium">
               {errorMessage}
-            </div>
-          )}
-          {successMessage && (
-            <div className="mb-4 text-center text-green-600 font-medium">
-              {successMessage}
             </div>
           )}
 
