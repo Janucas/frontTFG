@@ -9,8 +9,27 @@ export default function LoginPage() {
   const [password, setPassword] = useState("")
   const [errorMessage, setErrorMessage] = useState("")
 
+  const validarCampos = () => {
+    const soloSimbolos = /^[^a-zA-Z0-9]*$/
+
+    if (!/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(email))
+      return "Correo electrónico inválido. Asegúrate de incluir un dominio válido como '.com', '.es', etc."
+
+    if (password.length < 6 || soloSimbolos.test(password))
+      return "La contraseña debe tener al menos 6 caracteres y contener letras o números."
+
+    return ""
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    setErrorMessage("")
+
+    const validacion = validarCampos()
+    if (validacion) {
+      setErrorMessage("❌ " + validacion)
+      return
+    }
 
     try {
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/login`, {
@@ -19,7 +38,7 @@ export default function LoginPage() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          username: email, // clave esperada por el backend
+          username: email,
           password: password,
         }),
       })
@@ -32,17 +51,12 @@ export default function LoginPage() {
 
       const data = await response.json()
       const token = data.token
-      const username = data.username || email // usa el email si el backend no envía username
+      const username = data.username || email
 
-      // Guardar en localStorage
       localStorage.setItem("token", token)
       localStorage.setItem("username", username)
 
-      // Notificar al resto de la app (por ejemplo TopHeader)
       window.dispatchEvent(new Event("storage"))
-
-      // Limpiar mensaje de error y redirigir
-      setErrorMessage("")
       window.location.href = "/"
     } catch (error) {
       console.error("Error al iniciar sesión:", error)
