@@ -34,7 +34,7 @@ export default function RegisterPage() {
     return "Número de teléfono inválido."
 
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || soloSimbolos.test(email))
-    return "Correo electrónico inválido o con caracteres inválidos."
+  return "Correo electrónico inválido o con caracteres inválidos."
 
   if (password.length < 6 || soloSimbolos.test(password))
     return "La contraseña debe tener al menos 6 caracteres y contener letras o números."
