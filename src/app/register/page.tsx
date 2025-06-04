@@ -203,6 +203,8 @@ export default function RegisterPage() {
 
             {/* Botón de enviar */}
             <button
+               <Link
+                 href="/login"
               type="submit"
               className="w-full p-3 mt-4 rounded-lg text-white font-medium transition-colors duration-300"
               style={{ backgroundColor: "#8dd3ba" }}
@@ -210,6 +212,7 @@ export default function RegisterPage() {
               onMouseOut={(e) => (e.currentTarget.style.backgroundColor = "#8dd3ba")}
             >
               Registrarse
+                 </Link>
             </button>
           </form>
 
