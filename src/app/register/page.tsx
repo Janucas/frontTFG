@@ -1,46 +1,85 @@
-"use client";
+"use client"
 
-import React, { useState } from "react";
-import Link from "next/link";
-import Footer from "@/components/Footer";
+import React, { useState } from "react"
+import Link from "next/link"
+import { useRouter } from "next/navigation"
+import Footer from "@/components/Footer"
 
 export default function RegisterPage() {
-  const [username, setNombre] = useState("");
-  const [dni, setDni] = useState("");
-  const [fechaNacimiento, setFechaNacimiento] = useState("");
-  const [telefono, setTelefono] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [errorMessage, setErrorMessage] = useState("");
-  const [successMessage, setSuccessMessage] = useState("");
+  const [username, setNombre] = useState("")
+  const [dni, setDni] = useState("")
+  const [fechaNacimiento, setFechaNacimiento] = useState("")
+  const [telefono, setTelefono] = useState("")
+  const [email, setEmail] = useState("")
+  const [password, setPassword] = useState("")
+  const [showPassword, setShowPassword] = useState(false)
+  const [errorMessage, setErrorMessage] = useState("")
+  const [successMessage, setSuccessMessage] = useState("")
+
+  const router = useRouter()
+
+  const validarCampos = () => {
+  const soloSimbolos = /^[^a-zA-Z0-9]*$/ // solo símbolos como *****
+
+  if (username.trim().length < 3 || soloSimbolos.test(username))
+    return "El nombre debe tener al menos 3 letras válidas."
+
+  if (!/^\d{8}[A-Z]$/.test(dni))
+    return "El DNI debe tener 8 números y una letra mayúscula (ej: 12345678A)."
+
+  if (!fechaNacimiento)
+    return "La fecha de nacimiento es obligatoria."
+
+  if (!/^\+?\d{9,15}$/.test(telefono))
+    return "Número de teléfono inválido."
+
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || soloSimbolos.test(email))
+    return "Correo electrónico inválido o con caracteres inválidos."
+
+  if (password.length < 6 || soloSimbolos.test(password))
+    return "La contraseña debe tener al menos 6 caracteres y contener letras o números."
+
+  return ""
+}
+
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+    e.preventDefault()
+    setErrorMessage("")
+    setSuccessMessage("")
+
+    const validacion = validarCampos()
+    if (validacion) {
+      setErrorMessage("❌ " + validacion)
+      return
+    }
 
     try {
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/register`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+        },
         body: JSON.stringify({
           username: email,
           password,
           nombre: username,
         }),
-      });
+      })
 
       if (!response.ok) {
-        const errorText = await response.text();
-        setErrorMessage("Error al registrar: " + errorText);
-        return;
+        const errorText = await response.text()
+        setErrorMessage("❌ Error al registrar: " + errorText)
+        return
       }
 
-      setSuccessMessage("✅ ¡Registro exitoso!");
-      setErrorMessage("");
+      setSuccessMessage("✅ ¡Registro exitoso! Redirigiendo al login...")
+      setTimeout(() => router.push("/login"), 1500)
     } catch (error) {
-      console.error("Error en el registro:", error);
-      setErrorMessage("Hubo un error en el registro.");
+      console.error("Error en el registro:", error)
+      setErrorMessage("❌ Hubo un error en el registro")
     }
-  };
+  }
 
   return (
     <>
@@ -58,7 +97,6 @@ export default function RegisterPage() {
               {errorMessage}
             </div>
           )}
-
           {successMessage && (
             <div className="mb-4 text-center text-green-600 font-medium">
               {successMessage}
@@ -77,8 +115,8 @@ export default function RegisterPage() {
                 value={username}
                 placeholder="Nombre de usuario"
                 onChange={(e) => setNombre(e.target.value)}
-                className="p-3 bg-white text-gray-700 placeholder-gray-500 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
                 required
+                className="p-3 bg-white border rounded-lg"
               />
             </div>
 
@@ -93,8 +131,8 @@ export default function RegisterPage() {
                 value={dni}
                 placeholder="12345678A"
                 onChange={(e) => setDni(e.target.value)}
-                className="p-3 bg-white text-gray-700 placeholder-gray-500 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
                 required
+                className="p-3 bg-white border rounded-lg"
               />
             </div>
 
@@ -108,8 +146,8 @@ export default function RegisterPage() {
                 type="date"
                 value={fechaNacimiento}
                 onChange={(e) => setFechaNacimiento(e.target.value)}
-                className="p-3 bg-white text-gray-700 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
                 required
+                className="p-3 bg-white border rounded-lg"
               />
             </div>
 
@@ -124,8 +162,8 @@ export default function RegisterPage() {
                 value={telefono}
                 placeholder="+34 600 000 000"
                 onChange={(e) => setTelefono(e.target.value)}
-                className="p-3 bg-white text-gray-700 placeholder-gray-500 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
                 required
+                className="p-3 bg-white border rounded-lg"
               />
             </div>
 
@@ -140,25 +178,32 @@ export default function RegisterPage() {
                 value={email}
                 placeholder="ejemplo@email.com"
                 onChange={(e) => setEmail(e.target.value)}
-                className="p-3 bg-white text-gray-700 placeholder-gray-500 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
                 required
+                className="p-3 bg-white border rounded-lg"
               />
             </div>
 
-            {/* Contraseña */}
-            <div className="flex flex-col">
+            {/* Contraseña con "ojito" */}
+            <div className="flex flex-col relative">
               <label htmlFor="password" className="mb-2 text-[#8dd3ba] font-medium">
                 Contraseña
               </label>
               <input
                 id="password"
-                type="password"
+                type={showPassword ? "text" : "password"}
                 value={password}
-                placeholder="••••••••"
                 onChange={(e) => setPassword(e.target.value)}
-                className="p-3 bg-white text-gray-700 placeholder-gray-500 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
                 required
+                className="p-3 bg-white border rounded-lg pr-10"
               />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-10 text-gray-600"
+                tabIndex={-1}
+              >
+                {showPassword ? "🙈" : "👁️"}
+              </button>
             </div>
 
             {/* Botón de enviar */}
@@ -184,5 +229,5 @@ export default function RegisterPage() {
 
       <Footer />
     </>
-  );
+  )
 }
