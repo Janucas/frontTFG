@@ -1,85 +1,47 @@
-"use client"
+"use client";
 
-import React, { useState } from "react"
-import Link from "next/link"
-import { useRouter } from "next/navigation"
-import Footer from "@/components/Footer"
+import React, { useState } from "react";
+import Link from "next/link";
+import Footer from "@/components/Footer";
+import AuthButton from "@/components/AuthButton";
 
 export default function RegisterPage() {
-  const [username, setNombre] = useState("")
-  const [dni, setDni] = useState("")
-  const [fechaNacimiento, setFechaNacimiento] = useState("")
-  const [telefono, setTelefono] = useState("")
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
-  const [showPassword, setShowPassword] = useState(false)
-  const [errorMessage, setErrorMessage] = useState("")
-
-  const router = useRouter()
-
-  const validarCampos = () => {
-    const soloSimbolos = /^[^a-zA-Z0-9]*$/
-
-    if (username.trim().length < 3 || soloSimbolos.test(username))
-      return "El nombre debe tener al menos 3 letras válidas."
-
-    if (!/^\d{8}[A-Z]$/.test(dni))
-      return "El DNI debe tener 8 números y una letra mayúscula (ej: 12345678A)."
-
-    if (!fechaNacimiento)
-      return "La fecha de nacimiento es obligatoria."
-
-    if (!/^\+?\d{9,15}$/.test(telefono))
-      return "Número de teléfono inválido."
-
-    if (
-      !/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(email) ||
-      soloSimbolos.test(email)
-    ) {
-      return "Correo electrónico inválido. Asegúrate de incluir un dominio como '.com', '.es', etc."
-    }
-
-    if (password.length < 6 || soloSimbolos.test(password))
-      return "La contraseña debe tener al menos 6 caracteres y contener letras o números."
-
-    return ""
-  }
+  const [username, setNombre] = useState("");
+  const [dni, setDni] = useState("");
+  const [fechaNacimiento, setFechaNacimiento] = useState("");
+  const [telefono, setTelefono] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setErrorMessage("")
-
-    const validacion = validarCampos()
-    if (validacion) {
-      setErrorMessage("❌ " + validacion)
-      return
-    }
+    e.preventDefault();
 
     try {
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/register`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           username: email,
           password,
           nombre: username,
         }),
-      })
+      });
 
       if (!response.ok) {
-        const errorText = await response.text()
-        setErrorMessage("❌ Error al registrar: " + errorText)
-        return
+        const errorText = await response.text();
+        setErrorMessage("Error al registrar: " + errorText);
+        return;
       }
 
-      router.push("/login")
+      setSuccessMessage("✅ ¡Registro exitoso!");
+      setErrorMessage("");
     } catch (error) {
-      console.error("Error en el registro:", error)
-      setErrorMessage("❌ Hubo un error en el registro")
+      console.error("Error en el registro:", error);
+      setErrorMessage("Hubo un error en el registro.");
     }
-  }
+  };
 
   return (
     <>
@@ -98,6 +60,12 @@ export default function RegisterPage() {
             </div>
           )}
 
+          {successMessage && (
+            <div className="mb-4 text-center text-green-600 font-medium">
+              {successMessage}
+            </div>
+          )}
+
           <form onSubmit={handleSubmit} className="space-y-4">
             {/* Nombre */}
             <div className="flex flex-col">
@@ -110,8 +78,8 @@ export default function RegisterPage() {
                 value={username}
                 placeholder="Nombre de usuario"
                 onChange={(e) => setNombre(e.target.value)}
+                className="p-3 bg-white text-gray-700 placeholder-gray-500 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
                 required
-                className="p-3 bg-white border rounded-lg"
               />
             </div>
 
@@ -126,8 +94,8 @@ export default function RegisterPage() {
                 value={dni}
                 placeholder="12345678A"
                 onChange={(e) => setDni(e.target.value)}
+                className="p-3 bg-white text-gray-700 placeholder-gray-500 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
                 required
-                className="p-3 bg-white border rounded-lg"
               />
             </div>
 
@@ -141,8 +109,8 @@ export default function RegisterPage() {
                 type="date"
                 value={fechaNacimiento}
                 onChange={(e) => setFechaNacimiento(e.target.value)}
+                className="p-3 bg-white text-gray-700 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
                 required
-                className="p-3 bg-white border rounded-lg"
               />
             </div>
 
@@ -157,8 +125,8 @@ export default function RegisterPage() {
                 value={telefono}
                 placeholder="+34 600 000 000"
                 onChange={(e) => setTelefono(e.target.value)}
+                className="p-3 bg-white text-gray-700 placeholder-gray-500 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
                 required
-                className="p-3 bg-white border rounded-lg"
               />
             </div>
 
@@ -173,38 +141,29 @@ export default function RegisterPage() {
                 value={email}
                 placeholder="ejemplo@email.com"
                 onChange={(e) => setEmail(e.target.value)}
+                className="p-3 bg-white text-gray-700 placeholder-gray-500 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
                 required
-                className="p-3 bg-white border rounded-lg"
               />
             </div>
 
-            {/* Contraseña con "ojito" */}
-            <div className="flex flex-col relative">
+            {/* Contraseña */}
+            <div className="flex flex-col">
               <label htmlFor="password" className="mb-2 text-[#8dd3ba] font-medium">
                 Contraseña
               </label>
               <input
                 id="password"
-                type={showPassword ? "text" : "password"}
+                type="password"
                 value={password}
+                placeholder="••••••••"
                 onChange={(e) => setPassword(e.target.value)}
+                className="p-3 bg-white text-gray-700 placeholder-gray-500 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
                 required
-                className="p-3 bg-white border rounded-lg pr-10"
               />
-              <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-10 text-gray-600"
-                tabIndex={-1}
-              >
-                {showPassword ? "🙈" : "👁️"}
-              </button>
             </div>
 
             {/* Botón de enviar */}
             <button
-               <Link
-                 href="/login"
               type="submit"
               className="w-full p-3 mt-4 rounded-lg text-white font-medium transition-colors duration-300"
               style={{ backgroundColor: "#8dd3ba" }}
@@ -212,9 +171,12 @@ export default function RegisterPage() {
               onMouseOut={(e) => (e.currentTarget.style.backgroundColor = "#8dd3ba")}
             >
               Registrarse
-                 </Link>
             </button>
           </form>
+
+          {/* Separador y botón de Google */}
+          <div className="my-6 text-center text-sm text-gray-500">— o —</div>
+          <AuthButton />
 
           <p className="mt-6 text-center text-sm text-gray-600">
             ¿Ya tienes cuenta?{" "}
@@ -227,5 +189,5 @@ export default function RegisterPage() {
 
       <Footer />
     </>
-  )
+  );
 }
