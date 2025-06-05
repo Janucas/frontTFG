@@ -1,10 +1,15 @@
+// src/components/AuthButton.tsx
 "use client";
 
 import { getAuth, signInWithPopup, GoogleAuthProvider } from "firebase/auth";
 import { app } from "@/lib/firebase";
 import { FcGoogle } from "react-icons/fc";
 
-export default function AuthButton() {
+type AuthButtonProps = {
+  mode?: "login" | "register";
+};
+
+export default function AuthButton({ mode = "login" }: AuthButtonProps) {
   const handleGoogleLogin = async () => {
     const provider = new GoogleAuthProvider();
     const auth = getAuth(app);
@@ -34,7 +39,7 @@ export default function AuthButton() {
 
       const data = await response.json();
       localStorage.setItem("token", data.token);
-      localStorage.setItem("username", user.displayName || "Usuario");
+      localStorage.setItem("username", user.displayName || user.email);
       window.dispatchEvent(new Event("storage"));
       window.location.href = "/";
     } catch (error) {
@@ -49,7 +54,7 @@ export default function AuthButton() {
       className="w-full flex items-center justify-center gap-3 p-3 mt-2 border border-gray-300 rounded-lg hover:bg-gray-100 transition"
     >
       <FcGoogle className="text-xl" />
-      Registrarse con Google
+      {mode === "register" ? "Registrarse con Google" : "Entrar con Google"}
     </button>
   );
 }

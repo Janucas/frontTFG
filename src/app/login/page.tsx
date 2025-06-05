@@ -4,6 +4,8 @@ import { getAuth, signInWithPopup, GoogleAuthProvider } from "firebase/auth";
 import { app } from "@/lib/firebase"; // Asegúrate de que tienes esta configuración
 import { FcGoogle } from "react-icons/fc";
 
+
+
 export default function AuthButton() {
   const handleGoogleLogin = async () => {
     const provider = new GoogleAuthProvider();

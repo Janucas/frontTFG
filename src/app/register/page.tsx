@@ -5,6 +5,8 @@ import Link from "next/link";
 import Footer from "@/components/Footer";
 import AuthButton from "@/components/AuthButton";
 
+<AuthButton mode="register" />
+
 export default function RegisterPage() {
   const [username, setNombre] = useState("");
   const [dni, setDni] = useState("");
