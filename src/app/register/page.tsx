@@ -174,9 +174,11 @@ export default function RegisterPage() {
             </button>
           </form>
 
-          {/* Separador y botón de Google */}
-          <div className="my-6 text-center text-sm text-gray-500">— o —</div>
-          <AuthButton />
+              <div className="my-6 text-center text-sm text-gray-500">— o regístrate con —</div>
+              <div className="flex justify-center">
+              <AuthButton />
+              </div>
+
 
           <p className="mt-6 text-center text-sm text-gray-600">
             ¿Ya tienes cuenta?{" "}

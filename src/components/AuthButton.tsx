@@ -1,53 +1,55 @@
 "use client";
-import { signInWithPopup } from "firebase/auth";
-import { auth, provider } from "@/lib/firebase";
-import { useState } from "react";
+
+import { getAuth, signInWithPopup, GoogleAuthProvider } from "firebase/auth";
+import { app } from "@/lib/firebase";
+import { FcGoogle } from "react-icons/fc";
 
 export default function AuthButton() {
-  const [user, setUser] = useState<any>(null);
+  const handleGoogleLogin = async () => {
+    const provider = new GoogleAuthProvider();
+    const auth = getAuth(app);
 
-  const loginWithGoogle = async () => {
     try {
       const result = await signInWithPopup(auth, provider);
       const user = result.user;
-      setUser(user);
 
-      // Aquí llamas a tu backend para registrar o autenticar
+      if (!user.email || !user.displayName) {
+        alert("Faltan datos de usuario.");
+        return;
+      }
+
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/login-google`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          email: user.email,
-          nombre: user.displayName,
-          uid: user.uid, // puedes usar esto como identificador único
+          username: user.email,
+          password: user.displayName,
         }),
       });
 
-      const data = await response.json();
-
-      // Guardar token recibido
-      if (data.token) {
-        localStorage.setItem("token", data.token);
-        localStorage.setItem("username", String(user.displayName));
-        window.dispatchEvent(new Event("storage"));
-        window.location.href = "/";
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error("Error en backend: " + errorText);
       }
+
+      const data = await response.json();
+      localStorage.setItem("token", data.token);
+      localStorage.setItem("username", user.displayName || "Usuario");
+      window.dispatchEvent(new Event("storage"));
+      window.location.href = "/";
     } catch (error) {
-      console.error("Error al iniciar sesión con Google:", error);
+      console.error("Error con login de Google:", error);
+      alert("No se pudo iniciar sesión con Google.");
     }
   };
 
   return (
     <button
-      onClick={loginWithGoogle}
-      className="w-full p-3 mt-4 rounded-lg text-white font-medium transition-colors duration-300"
-      style={{ backgroundColor: "#db4437" }}
-      onMouseOver={(e) => (e.currentTarget.style.backgroundColor = "#a93429")}
-      onMouseOut={(e) => (e.currentTarget.style.backgroundColor = "#db4437")}
+      onClick={handleGoogleLogin}
+      className="w-full flex items-center justify-center gap-3 p-3 mt-2 border border-gray-300 rounded-lg hover:bg-gray-100 transition"
     >
-      Iniciar sesión con Google
+      <FcGoogle className="text-xl" />
+      Registrarse con Google
     </button>
   );
 }
