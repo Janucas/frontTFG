@@ -10,8 +10,21 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
 
+  const validarCampos = () => {
+    const soloSimbolos = /^[^a-zA-Z0-9]*$/
+
+    if (!/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(email))
+      return "Correo electrónico inválido. Asegúrate de incluir un dominio válido como '.com', '.es', etc."
+
+    if (password.length < 6 || soloSimbolos.test(password))
+      return "La contraseña debe tener al menos 6 caracteres y contener letras o números."
+
+    return ""
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
 
     try {
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/login`, {
@@ -41,6 +54,7 @@ export default function LoginPage() {
 
       setErrorMessage("");
       window.location.href = "/";
+
     } catch (error) {
       console.error("Error al iniciar sesión:", error);
       setErrorMessage("Hubo un error al iniciar sesión. Inténtalo de nuevo.");
