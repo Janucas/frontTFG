@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import Footer from "@/components/Footer";
+import AuthButton from "@/components/AuthButton";
 
 export default function RegisterPage() {
   const [username, setNombre] = useState("");
@@ -172,6 +173,10 @@ export default function RegisterPage() {
               Registrarse
             </button>
           </form>
+
+          {/* Separador y botón de Google */}
+          <div className="my-6 text-center text-sm text-gray-500">— o —</div>
+          <AuthButton />
 
           <p className="mt-6 text-center text-sm text-gray-600">
             ¿Ya tienes cuenta?{" "}

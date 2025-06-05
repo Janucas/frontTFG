@@ -1,16 +1,17 @@
-"use client"
+"use client";
 
-import React, { useState } from "react"
-import Link from "next/link"
-import Footer from "@/components/Footer"
+import React, { useState } from "react";
+import Link from "next/link";
+import Footer from "@/components/Footer";
+import AuthButton from "@/components/AuthButton";
 
 export default function LoginPage() {
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
-  const [errorMessage, setErrorMessage] = useState("")
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
+    e.preventDefault();
 
     try {
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/login`, {
@@ -19,36 +20,32 @@ export default function LoginPage() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          username: email, // clave esperada por el backend
+          username: email,
           password: password,
         }),
-      })
+      });
 
       if (!response.ok) {
-        const errorText = await response.text()
-        setErrorMessage("Error: " + errorText)
-        return
+        const errorText = await response.text();
+        setErrorMessage("Error: " + errorText);
+        return;
       }
 
-      const data = await response.json()
-      const token = data.token
-      const username = data.username || email // usa el email si el backend no envía username
+      const data = await response.json();
+      const token = data.token;
+      const username = data.username || email;
 
-      // Guardar en localStorage
-      localStorage.setItem("token", token)
-      localStorage.setItem("username", username)
+      localStorage.setItem("token", token);
+      localStorage.setItem("username", username);
+      window.dispatchEvent(new Event("storage"));
 
-      // Notificar al resto de la app (por ejemplo TopHeader)
-      window.dispatchEvent(new Event("storage"))
-
-      // Limpiar mensaje de error y redirigir
-      setErrorMessage("")
-      window.location.href = "/"
+      setErrorMessage("");
+      window.location.href = "/";
     } catch (error) {
-      console.error("Error al iniciar sesión:", error)
-      setErrorMessage("Hubo un error al iniciar sesión. Inténtalo de nuevo.")
+      console.error("Error al iniciar sesión:", error);
+      setErrorMessage("Hubo un error al iniciar sesión. Inténtalo de nuevo.");
     }
-  }
+  };
 
   return (
     <>
@@ -113,6 +110,10 @@ export default function LoginPage() {
             </button>
           </form>
 
+          {/* Separador y botón Google */}
+          <div className="my-6 text-center text-sm text-gray-500">— o —</div>
+          <AuthButton />
+
           <p className="mt-6 text-center text-sm text-gray-600">
             ¿No tienes cuenta?{" "}
             <Link
@@ -127,5 +128,5 @@ export default function LoginPage() {
 
       <Footer />
     </>
-  )
+  );
 }
