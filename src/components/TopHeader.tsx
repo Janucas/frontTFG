@@ -39,7 +39,6 @@ export default function TopHeader() {
 
   if (!isClient) return null
 
-
   return (
     <header className="relative z-50">
       <div className="bg-green-950 text-white text-sm text-center py-2 px-4">
@@ -65,7 +64,6 @@ export default function TopHeader() {
 
           {/* Sección izquierda */}
           <div className="flex items-center space-x-4 justify-center md:justify-start">
-
             <Link
               href="/equipaje"
               className="flex items-center space-x-2 text-gray-800 font-medium hover:text-[#76bfa9] transition-colors duration-200"
@@ -91,7 +89,6 @@ export default function TopHeader() {
 
           {/* Sección derecha */}
           <div className="flex items-center space-x-4 justify-center md:justify-end">
-
             {!loggedIn ? (
               <>
                 <Link href="/login" className="text-gray-800 hover:text-[#76bfa9] transition-colors duration-200">
@@ -113,7 +110,6 @@ export default function TopHeader() {
                   Logout
                 </button>
                 <span className="text-gray-700 font-medium">👋 Hola, {username}</span>
-
               </>
             )}
           </div>
